@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Java Magazine Exemplo Login Facebook</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+</head>
+<body>
+	<script>
+
+		// Esta função de callback é chamada sempre que quisermos verificar os resultados de FB.getLoginStatus().
+		// FB.getLoginStatus() é uma função da SDK do facebook que irá verificar o status atual do usuário que está acessando o site.
+		function callbackMudancaStatus(response){
+			// Logs apenas para depuração
+			console.log('Verificando status no facebook para o usuário atual');
+			console.log(response);
+
+			// A resposta contém um atributo 'status' onde é possível verificar se o usuário está: 
+			// - conectado ao facebook e em nossa aplicação 
+			// - conectado apenas ao facebook 
+			// - não está conectado ao facebook e neste caso não é possível verificar através do SDK se o usuário está ou não conectado ao nosso site.
+
+			if(response.status === 'connected') {
+				// Conectado ao facebook e ao site
+				fazLoginFacebook();
+			} else if(response.status === 'not_authorized') {
+				// Conectado ao facebook mas não ao site
+			} else {
+				// Não conectado ao facebook, sendo assim não é possível definir se está ou não logado ao site.
+				// Para este caso, se o site já possue um sistema login, deve-se então verificar o
+				// status do usuário neste sistema de login e/ou direciona-lo à tela de login. 
+
+				// Em nosso caso vamos direciona-lo à tela de login.
+				console.log('Usuário não conectado ao facebook, direcionando ao login');
+			}
+		}
+
+		// Esta função é chamada pelo nosso botão do facebook no momento do login, ela é responsável por verificar o status do login e proceder de acordo com a reposta.
+		function verificaLogin() {
+			// Primeiro solicitamos a SDK do facebook o status do login, está função recebe como parâmetro uma outra função de callback que recebe o parametro 'response';
+			FB.getLoginStatus(function(response) {
+				// Aqui chamamos a nossa função criada anteriormente para verificar e proceder de acordo com o status.
+				callbackMudancaStatus(response);
+			});
+		}
+
+		// Aqui temos o import assincrono da SDK do facebook, o código abaixo é recomendado pelo próprio facebook através do site http://developers.facebook.com/.
+		// Você pode importar diretamente (de uma forma sincrona) a SDK ao seu site, sem rodar o código abaixo, porém por se tratar de uma SDK grande e com muitos callbacks ela pode travar o site durante o carregamento, a maneira assincrona evita este tipo de problema, e, como dito anteriormente, é recomendada pelo site do facebook.
+
+		// Atribuimos à váriavel fbAsyncInit (chamada pela SDK do facebook) uma funcão que fará a chamada a FB.init(), responsável em inicializar a SDK com os parâmetros necessários.
+	  	window.fbAsyncInit = function() {
+	    	FB.init({
+	      	appId      : '1218456508180455', // ID de nosso App (registrado no facebook developers)
+	      	xfbml      : true, 	// Aqui definimos xfbml(eXtended FaceBook Markup Language) como true, dizendo que vamos utilizar tags 
+	      						// e funções do facebook no site, em nosso caso o botão de login.
+	      	version    : 'v2.4' // a versão da SDK que iremos utilizar
+	    	});
+
+	    	// Após carregarmos a SDK fazemos uma chamada ao verificaLogin() para nos retornar um estado do usuário que esta visitando a página atualmente. Com isso podemos recuperar o status atual e mante-lo logado, através da própria SDK do facebook.
+	  		// Este passo pode ser desconsiderado caso seu site já possua um sistema de login.
+	  		verificaLogin();
+	  	};
+
+	  	// A função abaixo irá criar uma nova tag <script> (acima desta) com a sdk do facebook como 'src' 
+	  	(function(d, s, id){
+	    	var js, fjs = d.getElementsByTagName(s)[0];
+	     	if (d.getElementById(id)) {return;}
+	     	js = d.createElement(s); js.id = id;
+	     	js.src = "//connect.facebook.net/pt_BR/sdk.js";
+	     	fjs.parentNode.insertBefore(js, fjs);
+	   	}
+	   	(document, 'script', 'facebook-jssdk')); // chamada a função criada acima
+
+	   	function fazLoginFacebook() {
+	   		console.log('Logado com facebook!');
+	   		FB.api('/me', function(response) {
+	   			console.log('Logado como ' + response.name);
+	   			console.log('Email ' + response.email);
+	   		});
+	   	}
+    </script>
+
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.min.js"></script>
+
+    <div id="container">
+    	<fb:login-button scope="public_profile,email" onlogin="verificaLogin();" 
+    		data-auto-logout-link="true">
+    		Fazer Login com Facebook
+    	</fb:login-button>
+	</div>
+</body>
+</html>
