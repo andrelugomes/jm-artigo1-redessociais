@@ -1,0 +1,21 @@
+<html>
+  <head>
+    <script src="https://apis.google.com/js/client.js"></script>
+    <script>
+      function auth() {
+        var config = {
+          'client_id': '590431461104-0tq0chnfdm1mnbkqpnbjhgqpp7au42th.apps.googleusercontent.com',
+          'scope': 'https://www.googleapis.com/auth/plus.me'
+        };
+        gapi.auth.authorize(config, function() {
+          console.log('login complete');
+          console.log(gapi.auth.getToken());
+        });
+      }
+    </script>
+  </head>
+
+  <body>
+    <button onclick="auth();">Authorize</button>
+  </body>
+</html>
