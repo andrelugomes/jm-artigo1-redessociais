@@ -15,6 +15,11 @@ Install Http-Server
 ```bash
 npm install http-server -g
 ```
+Install JQuery
+
+```bash
+bower install jquery
+```
 
 Run
 
